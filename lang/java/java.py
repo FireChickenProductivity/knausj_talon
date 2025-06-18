@@ -153,17 +153,11 @@ class UserActions:
     def code_break():
         actions.insert("break;")
 
-    def code_next():
-        actions.insert("continue;")
-
     def code_insert_true():
         actions.insert("true")
 
     def code_insert_false():
         actions.insert("false")
-
-    def code_state_return():
-        actions.insert("return ")
 
     def code_insert_function(text: str, selection: str):
         text += f"({selection or ''})"

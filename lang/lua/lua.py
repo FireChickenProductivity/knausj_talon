@@ -168,15 +168,8 @@ class UserActions:
     # the tag(): user.code_imperative style declaration in the language .talon
     # file
 
-    def code_state_return():
-        actions.insert("return ")
-
     def code_break():
         actions.insert("break ")
-
-    # Assumes a ::continue:: label
-    def code_next():
-        actions.insert("goto continue")
 
     ##
     # code_comment_block
