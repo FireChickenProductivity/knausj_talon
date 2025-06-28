@@ -33,6 +33,8 @@ op left arrow: " <- "
 op plus plus: " ++ "
 op subtype: " <: "
 
+state match: user.code_state_switch()
+
 block string:
     insert('""""""')
     key("left left left")
