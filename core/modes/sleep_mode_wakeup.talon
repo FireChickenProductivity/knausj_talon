@@ -24,4 +24,3 @@ not tag: user.deep_sleep
 # means that these won't recognize. The (+) handles this case, so if you say
 # <pause> "talon wake talon wake" <pause>, it'll still work.
 
-^talon wake [<phrase>]$: speech.enable()
