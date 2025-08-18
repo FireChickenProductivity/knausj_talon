@@ -3,7 +3,6 @@ code.language: java
 tag(): user.code_imperative
 tag(): user.code_object_oriented
 
-tag(): user.code_block_c_like
 tag(): user.code_comment_line
 tag(): user.code_comment_block_c_like
 tag(): user.code_data_bool
@@ -15,6 +14,7 @@ tag(): user.code_operators_assignment
 tag(): user.code_operators_bitwise
 tag(): user.code_operators_lambda
 tag(): user.code_operators_math
+tag(): user.code_keywords
 
 settings():
     user.code_private_function_formatter = "PRIVATE_CAMEL_CASE"

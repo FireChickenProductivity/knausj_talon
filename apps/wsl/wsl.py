@@ -9,6 +9,8 @@ from talon.debug import log_exception
 
 mod = Module()
 
+mod.tag("wsl", desc="Tag to activate WSL support in Talon")
+
 ctx = Context()
 
 # note: this context match is intentionally made more complex so that it is more specific
@@ -310,7 +312,7 @@ def run_wslpath(args, in_path, in_distro=None):
 # Once the WSL distro is hung, every attempt to use it results in many repeated log messages like these:
 #
 # 2021-10-15 11:15:49 WARNING [watchdog] "talon.windows.ui._on_event" @30.0s (stalled)
-# 2021-10-15 11:15:49 WARNING [watchdog] "user.knausj_talon.code.file_manager.win_event_handler"
+# 2021-10-15 11:15:49 WARNING [watchdog] "user.community.code.file_manager.win_event_handler"
 #
 # These messages are from code used to detect the current path from the window title, and it every time the
 # focus shifts to a wsl context or the current path changes. This gets tiresome if you don't want to restart
