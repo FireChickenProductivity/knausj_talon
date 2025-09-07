@@ -1,0 +1,73 @@
+language: java
+---
+
+name: synchronizedBlockStatement
+phrase: sync
+insertionScope: statement
+$1.insertionFormatter: PRIVATE_CAMEL_CASE
+-
+synchronized ($1) {
+    $0
+}
+---
+
+name: castAssignmentStatement
+phrase: cast
+insertionScope: statement
+$1.insertionFormatter: PUBLIC_CAMEL_CASE
+-
+$1 $2 = ($1) $3;
+---
+
+name: importLanguageStatement
+phrase: import lang
+insertionScope: statement
+-
+import java.lang.$0;
+---
+
+name: importUtilityStatement
+phrase: import util
+-
+import java.util.$0;
+---
+
+name: importIOStatement
+phrase: import io
+-
+import java.io.$0;
+---
+
+name: newObjectWithSameTypenameAssignmentStatement
+phrase: pristine
+$1.insertionFormatter: PUBLIC_CAMEL_CASE
+-
+$1 $2 = new $1($3);
+---
+
+name: illegalArgumentException
+phrase: throw illegal
+insertionScope: statement
+-
+throw new IllegalArgumentException($0);
+---
+
+name: variableClassTryCatchStatement
+phrase: catching
+-
+try {
+    $1
+}
+catch(final $2) {
+    $3
+}
+---
+
+name: javaFunctionDeclarationWithTypeStatement
+phrase: proc
+$1.insertionFormatter: PRIVATE_CAMEL_CASE
+-
+$1($2) $3{
+    $4
+}
+---
