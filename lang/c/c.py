@@ -1,5 +1,3 @@
-from contextlib import suppress
-
 from talon import Context, Module, actions, settings
 
 from ...core.described_functions import create_described_insert_between
@@ -29,13 +27,6 @@ c_and_cpp_ctx.lists["self.stdint_signed"] = {
     "you": "u",
 }
 
-c_and_cpp_ctx.lists["self.c_type_bit_width"] = {
-    "eight": "8",
-    "sixteen": "16",
-    "thirty two": "32",
-    "sixty four": "64",
-}
-
 c_and_cpp_ctx.lists["self.c_signed"] = {
     "signed": "signed",
     "unsigned": "unsigned",
@@ -63,18 +54,15 @@ c_and_cpp_ctx.lists["self.c_types"] = {
     "char": "char",
     "short": "short",
     "long": "long",
-    "long long": "long long",
     "int": "int",
     "integer": "int",
     "void": "void",
     "double": "double",
-    "long double": "long double",
     "struct": "struct",
     "struck": "struct",
     "num": "enum",
     "union": "union",
     "float": "float",
-    "size tea": "size_t",
 }
 
 ctx.lists["user.code_libraries"] = {
@@ -102,66 +90,53 @@ mod.list("c_signed", desc="Common C datatype signed modifiers")
 mod.list("c_types", desc="Common C types")
 mod.list("stdint_types", desc="Common stdint C types")
 mod.list("stdint_signed", desc="Common stdint C datatype signed modifiers")
-mod.list("c_type_bit_width", desc="Common C type bit widths")
-
-
-# capture explicitly referenced from the C++ files
-@mod.capture(rule="(fix|fixed) [{self.stdint_signed}] [int] {self.c_type_bit_width}")
-def c_fixed_integer(m) -> str:
-    """fixed-width integer types (e.g. "uint32_t")"""
-    prefix = ""
-    with suppress(AttributeError):
-        prefix = m.stdint_signed
-    return f"{prefix}int{m.c_type_bit_width}_t"
 
 
 @mod.capture(rule="{self.c_pointers}")
 def c_pointers(m) -> str:
-    "Returns a string"
+    """A C pointer"""
     return m.c_pointers
 
 
-# capture explicitly referenced from the C++ files
 @mod.capture(rule="{self.c_signed}")
 def c_signed(m) -> str:
-    "Returns a string"
+    """Used for prefixing a signed or unsigned type"""
     return m.c_signed
 
 
-# capture explicitly referenced from the C++ files
 @mod.capture(rule="{self.c_types}")
 def c_types(m) -> str:
-    "Returns a string"
+    """Used for C data types"""
     return m.c_types
 
 
 @mod.capture(rule="{self.stdint_types}")
 def stdint_types(m) -> str:
-    "Returns a string"
+    """Used for stdint types"""
     return m.stdint_types
 
 
 @mod.capture(rule="{self.stdint_signed}")
 def stdint_signed(m) -> str:
-    "Returns a string"
+    """Used for a signed or unsigned prefix"""
     return m.stdint_signed
 
 
 @mod.capture(rule="[<self.c_signed>] <self.c_types> [<self.c_pointers>+]")
 def c_cast(m) -> str:
-    "Returns a string"
+    """C casting"""
     return "(" + " ".join(list(m)) + ")"
 
 
 @mod.capture(rule="[<self.stdint_signed>] <self.stdint_types> [<self.c_pointers>+]")
 def stdint_cast(m) -> str:
-    "Returns a string"
+    """C stdint casting"""
     return "(" + "".join(list(m)) + ")"
 
 
 @mod.capture(rule="[<self.c_signed>] <self.c_types> [<self.c_pointers>]")
 def c_variable(m) -> str:
-    "Returns a string"
+    """Used to dictate a full C variable type"""
     return " ".join(list(m))
 
 
