@@ -69,6 +69,11 @@ class Actions:
         path = get_screenshot_path(title)
         img.write_file(path)
 
+    def screenshot_rectangle_clipboard(rect: ui.Rect):
+        """"""
+        flash_rect(rect)
+        clipboard_rect(rect)
+
 
 def clipboard_rect(rect: ui.Rect):
     flash_rect(rect)
