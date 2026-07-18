@@ -1,4 +1,5 @@
 not tag: user.screenshot_disabled
+mode: all
 -
 
 ^grab screen$: user.screenshot()
