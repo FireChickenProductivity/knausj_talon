@@ -29,9 +29,6 @@ settings():
     user.deprecate_command("2025-03-20", "(op | is) loosely not equal", "is weak not equal")
     insert(" != ")
 
-state try: user.insert_snippet_by_name("tryStatement")
-state catch: user.insert_snippet_by_name("catchStatement")
-
 var <phrase> [over]:
     insert("$")
     insert(user.formatted_text(phrase, "PRIVATE_CAMEL_CASE"))
