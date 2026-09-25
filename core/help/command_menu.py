@@ -41,6 +41,8 @@ def parse_markdown_columns(line):
 				in_backtick = not in_backtick
 			if line[i] == "|" and  not in_backtick:
 				column = line[start:i].strip()
+				if column.startswith("`") and column.endswith("`") and len(column) > 1:
+					column = column[1:-1]
 				if column:
 					columns.append(column)
 				i += 1
