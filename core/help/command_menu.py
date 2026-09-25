@@ -118,7 +118,7 @@ class CommandMenu:
 			Page(self.move_the_mouse_ui, "Move the mouse (voice commands)"),
 			Page(self.eye_tracking_ui, "Move the mouse (eye tracking)"),
 			Page(self.mouse_click_ui, "Click"),
-			Page(None, "Scroll the mouse"),
+			Page(self.mouse_scrolling_ui, "Scroll the mouse"),
 			Page(None, "Press keys"),
 			Page(None, "Move the cursor"),
 			Page(None, "Type text")
@@ -223,17 +223,40 @@ Moving your head is an important part of the new Control Mouse - moving your hea
 The speed at which you move your head has an exponential effect on the speed the mouse moves, so if you move your head very slowly, the mouse will only move a few pixels, but if you move your head very quickly, you can move the mouse by several inches.
 """)
 
+	async def mouse_scrolling_ui(self, ui):
+		command_table = parse_markdown_table("""| Command        | Description                            |
+| -------------- | -------------------------------------- |
+| `page down`    | press the Page Down key                |
+| `page up`      | press the Page Up key                  |
+| `scroll down`  | scroll down                            |
+| `scroll up`    | scroll up                              |
+| `wheel down`   | scroll down with the mouse             |
+| `wheel up`     | scroll up with the mouse               |
+| `wheel left`   | scroll left with the mouse             |
+| `wheel right`  | scroll right with the mouse            |
+| `wheel gaze`   | scroll according to the mouse position |
+| `wheel upper`  | continually scroll up with the mouse   |
+| `wheel downer` | continually scroll down with the mouse |
+| `wheel stop`   | stop scrolling                         |""")
+		await draw_table(ui, command_table)
+
 
 	def show(self):
+		self.current_page = None
 		self.window.show()
 
 	def hide(self):
 		self.window.hide()
 
 command_menu = CommandMenu()
-command_menu.show()
 
 mod = Module()
 @mod.action_class
 class Actions:
-	pass
+	def show_command_menu():
+		"""Show a menu for seeing how to do basic things using Community"""
+		command_menu.show()
+
+	def hide_command_menu():
+		"""Hide the Community command menu"""
+		command_menu.hide()

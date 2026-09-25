@@ -32,3 +32,6 @@ help formatters | help format | format help:
     user.help_formatters(user.get_formatters_words(), false)
 help re formatters | help re format | re format help:
     user.help_formatters(user.get_reformatters_words(), true)
+
+command menu: user.show_command_menu()
+command menu close: user.hide_command_menu()
