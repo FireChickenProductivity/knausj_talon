@@ -79,14 +79,16 @@ async def show_row_with_buttons(row, contents, text_to_button_function):
 			else:
 				ui.label(column)
 
-async def draw_table(ui, markdown_table, row_height=None, show_row=None, auto_size_columns=False):
+async def draw_table(ui, markdown_table, row_height=None, show_row=None, auto_size_columns=False, maximum_height=None):
+	if maximum_height is None:
+		maximum_height = ui.available_height()
 	headers = markdown_table.headers
 	column_width = ui.available_width()/len(headers)
 	table = (
 			egui.TableBuilder(ui)
 			.cell_layout(egui.Layout.left_to_right(egui.Align.Center).with_main_wrap(True))
 			.min_scrolled_height(0.0)
-			.max_scroll_height(ui.available_height())
+			.max_scroll_height(maximum_height)
 			.id_salt(str(markdown_table.rows))
 		)
 	for i in range(len(headers)):
@@ -111,7 +113,7 @@ async def draw_table(ui, markdown_table, row_height=None, show_row=None, auto_si
 			row.set_overline(True)
 			await show_row(row, rows)
 
-async def draw_list(ui, name, title=""):
+async def draw_list(ui, name, title="", maximum_height=None):
 	if title:
 		ui.strong(title)
 	talon_list = actions.user.talon_get_active_registry_list(name) 
@@ -119,7 +121,8 @@ async def draw_list(ui, name, title=""):
 	await draw_table(
 		ui,
 		Table(["Spoken Form", "Value"], rows),
-		auto_size_columns=True
+		auto_size_columns=True,
+		maximum_height=maximum_height
 	)
 	
 	
@@ -260,18 +263,24 @@ The speed at which you move your head has an exponential effect on the speed the
 		await draw_table(ui, command_table)
 
 	async def key_pressing_ui(self, ui):
-		async with ui.with_layout(egui.Layout.left_to_right(egui.Align.TOP)):
-			async with ui.vertical() as vertical_ui:
-				await draw_list(vertical_ui, "user.modifier_key", "Modifier Keys")
-				await draw_list(vertical_ui, "user.arrow_key", "Arrow Keys")
-				await draw_list(vertical_ui, "user.number_key", "Number Keys")
-			async with ui.vertical() as vertical_ui:
-				await draw_list(vertical_ui, "user.special_key", "Special Keys")
-				await draw_list(vertical_ui, "user.function_key", "Function Keys")
-			async with ui.vertical() as vertical_ui:
-				await draw_list(vertical_ui, "user.letter", "Letter Keys")
-			async with ui.vertical() as vertical_ui:
-				await draw_list(vertical_ui, "user.symbol_key", "Symbol Keys")
+		maximum_height = ui.available_height() - 100
+		async with ui.scope() as scope:
+			async with scope.style_mut() as style:
+				font_size = 11
+				font_id = egui.FontId(font_size, egui.FontFamily.Proportional)
+				style.override_font_id = font_id
+				async with ui.with_layout(egui.Layout.left_to_right(egui.Align.TOP)):
+					async with ui.vertical() as vertical_ui:
+						await draw_list(vertical_ui, "user.modifier_key", "Modifier Keys", maximum_height)
+						await draw_list(vertical_ui, "user.arrow_key", "Arrow Keys", maximum_height)
+						await draw_list(vertical_ui, "user.number_key", "Number Keys", maximum_height)
+					async with ui.vertical() as vertical_ui:
+						await draw_list(vertical_ui, "user.special_key", "Special Keys", maximum_height)
+						await draw_list(vertical_ui, "user.function_key", "Function Keys", maximum_height)
+					async with ui.vertical() as vertical_ui:
+						await draw_list(vertical_ui, "user.letter", "Letter Keys", maximum_height)
+					async with ui.vertical() as vertical_ui:
+						await draw_list(vertical_ui, "user.symbol_key", "Symbol Keys", maximum_height)
 
 
 	def show(self):
