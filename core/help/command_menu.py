@@ -61,9 +61,38 @@ def parse_markdown_table(table):
 		raise ValueError(f"Could not find rows in markdown table {table}")
 	return Table(headers, rows)
 
-def draw_table(ui, table):
-	headers = table.headers
-	
+async def show_row_with_labels(row, contents) -> None:
+	index = row.index()
+	for column in contents[index]:
+		async with row.col() as cell_ui:
+			cell_ui.label(column)
+
+
+async def draw_table(ui, markdown_table, row_height=None, show_row=None):
+	headers = markdown_table.headers
+	column_width = ui.available_width()/len(headers)
+	table = (
+			egui.TableBuilder(ui)
+			.cell_layout(egui.Layout.left_to_right(egui.Align.Center).with_main_wrap(True))
+			.min_scrolled_height(0.0)
+			.max_scroll_height(ui.available_height())
+		).column(egui.Column.remainder().at_most(column_width)).column(egui.Column.remainder().resizable(True).at_most(column_width))
+
+	async with table.header(20) as header:
+		for h in headers:
+			async with header.col() as header_ui:
+				header_ui.strong(h)
+
+	table = header.table()
+	rows = markdown_table.rows
+	if row_height is None:
+		row_height = 20
+	if show_row is None:
+		show_row = show_row_with_labels
+	async with table.body() as body:
+		async for row in body.rows(row_height, len(rows)):
+			row.set_overline(True)
+			await show_row(row, rows)
 
 
 class CommandMenu:
@@ -152,7 +181,7 @@ class CommandMenu:
 | `drag`       | hold down the left mouse button         |
 | `drag end`   | stop holding down the left mouse button |
 | `righty`     | right click                             |""")
-		draw_table(ui, command_table)
+		await draw_table(ui, command_table)
 
 	def show(self):
 		self.window.show()
