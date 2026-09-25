@@ -28,7 +28,7 @@ class CommandMenu:
 		self.window.draggable = True
 		self.window.decorated = False
 		self.current_page = None
-		self.window.rect = skia.Rect(x=10, y=20, width=400, height=600)
+		self.window.rect = skia.Rect(x=10, y=20, width=600, height=600)
 		self.window.set_content(self.ui)
 		self.pages = [
 			Page(self.move_the_mouse_ui, "Move the mouse (voice commands)"),
@@ -40,6 +40,7 @@ class CommandMenu:
 			Page(None, "Type text")
 		]
 		self.grid_screen_number = Mutable(2)
+		self.grid_narrowing_number = Mutable(1)
 
 	async def ui(self, ui):
 		if self.current_page is None:
@@ -81,6 +82,18 @@ class CommandMenu:
 				1
 			)
 		ui.label("Opens the mouse grid around the given screen. For instance, saying \"grid screen two\" draws the grid on screen 2.")
+		async with ui.horizontal():
+			if ui.button("grid").clicked():
+				actions.user.grid_activate()
+				actions.user.grid_narrow_list([self.grid_narrowing_number.get()])
+			represent_numbered_argument(
+				ui,
+				"and then you say a grid rectangle number",
+				self.grid_narrowing_number,
+				1,
+				9
+			)
+		ui.label("Opens the grid already inside the given grid rectangle. For instance, saying \"grid 1\" opens the grid inside the first rectangle.")
 		ui.add_space(10)
 		if ui.button("grid close").clicked():
 			actions.user.grid_close()
