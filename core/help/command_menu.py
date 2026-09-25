@@ -63,12 +63,21 @@ def parse_markdown_table(table):
 		raise ValueError(f"Could not find rows in markdown table {table}")
 	return Table(headers, rows)
 
-async def show_row_with_labels(row, contents) -> None:
+async def show_row_with_labels(row, contents):
 	index = row.index()
 	for column in contents[index]:
 		async with row.col() as cell_ui:
 			cell_ui.label(column)
 
+async def show_row_with_buttons(row, contents, text_to_button_function):
+	index = row.index()
+	for column in contents[index]:
+		async with row.col() as ui:
+			if column in text_to_button_function:
+				if ui.button(column).clicked():
+					text_to_button_function[column]()
+			else:
+				ui.label(column)
 
 async def draw_table(ui, markdown_table, row_height=None, show_row=None):
 	headers = markdown_table.headers
@@ -186,13 +195,34 @@ class CommandMenu:
 		await draw_table(ui, command_table)
 
 	async def eye_tracking_ui(self, ui):
+		ui.label("See the wiki for instructions on how to set up an eye tracking device.")
+		ui.add_space(10)
+		ui.label("Use can use the following voice commands to control your eye tracking device.")
 		command_table = parse_markdown_table("""| Commands          | Description                          |
 | ----------------- | ------------------------------------ |
 | `run calibration` | start Tobii calibration              |
 | `control mouse`   | toggle on/off Tobii moving the mouse |
 | `zoom mouse`      | Toggle Control Mouse (Zoom).         |
 | `control off`     | Turn the eye tracker off             |""")
-		await draw_table(ui, command_table)
+		functions = {
+			"run calibration": actions.tracking.calibrate,
+			"control mouse": actions.tracking.control_toggle,
+			"zoom mouse": actions.tracking.control_zoom_toggle,
+			"control off": actions.user.mouse_sleep,
+		}
+		await draw_table(ui, command_table, show_row=lambda row, contents: show_row_with_buttons(row, contents, functions))
+		ui.add_space(10)
+		ui.label("When using Zoom, you look at what you want to click on, make a popping noise to zoom in on the current region of the screen, and then fine tune the position before clicking.")
+		ui.label("When using Control Mouse, move the cursor with your eyes and fine in your position with your head.")
+		ui.add_space(10)
+		ui.strong("Notes on Control Mouse")
+		ui.label("""The intended use is that you look at the thing you want to click on, then move your head (rotate, tilt, whatever) to put the mouse cursor over the thing, then use some method of clicking (like a voice command or physical button).
+
+Moving your head is an important part of the new Control Mouse - moving your head locks your cursor to the current region until you look to a new part of the screen. This means the cursor will stabilize more when you start moving your head.
+
+The speed at which you move your head has an exponential effect on the speed the mouse moves, so if you move your head very slowly, the mouse will only move a few pixels, but if you move your head very quickly, you can move the mouse by several inches.
+""")
+
 
 	def show(self):
 		self.window.show()
