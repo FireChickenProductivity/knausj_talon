@@ -259,7 +259,11 @@ The speed at which you move your head has an exponential effect on the speed the
 		await draw_table(ui, command_table)
 
 	async def key_pressing_ui(self, ui):
-		await draw_list(ui, "user.modifier_key", "Modifier Keys")
+		async with ui.with_layout(egui.Layout.left_to_right(egui.Align.TOP)):
+			async with ui.vertical() as vertical_ui:
+				await draw_list(vertical_ui, "user.modifier_key", "Modifier Keys")
+			async with ui.vertical() as vertical_ui:
+				await draw_list(vertical_ui, "user.letter", "Letter Keys")
 
 
 	def show(self):
