@@ -13,6 +13,15 @@ class Page:
 	ui: Callable
 	title: str
 
+def represent_numbered_argument(ui, description, mutable, minimum=None, maximum=None):
+	ui.label(f"({description}): ")
+	ui.add(egui.DragValue(mutable))
+	value = mutable.get()
+	if minimum is not None and value < minimum:
+		mutable.set(minimum)
+	if maximum is not None and value > maximum:
+		mutable.set(maximum)
+
 class CommandMenu:
 	def __init__(self):
 		self.window = Window()
@@ -32,7 +41,7 @@ class CommandMenu:
 		]
 		self.grid_screen_number = Mutable(2)
 
-	async def ui(self, ui: egui.ui) -> None:
+	async def ui(self, ui):
 		if self.current_page is None:
 			ui.strong("What do you want to do?")
 			ui.separator()
@@ -49,8 +58,8 @@ class CommandMenu:
 		if ui.button("Command menu close").clicked():
 			self.hide()
 
-	async def move_the_mouse_ui(self, ui: egui.ui) -> None:
-		ui.label("The mouse grid lets you move the mouse by dictating numbers. You use one of the below commands to open the grid. This divides the area you made the grid around into 9 rectangles. Picking one of the numbers recreates the grid within that rectangle and moves the mouse to the center of that rectangle")
+	async def move_the_mouse_ui(self, ui):
+		ui.label("The mouse grid lets you move the mouse by dictating numbers. You use one of the below commands to open the grid. This divides the area you made the grid around into 9 numbered rectangles. Picking one of the numbers recreates the grid within that rectangle and moves the mouse to the center of that rectangle")
 		ui.add_space(10)
 		if ui.button("mouse grid").clicked():
 			actions.user.grid_select_screen(1)
@@ -65,20 +74,22 @@ class CommandMenu:
 				screen_number = self.grid_screen_number.get()
 				actions.user.grid_select_screen(screen_number)
 				actions.user.grid_activate()
-			ui.label("(and then you say a screen number): ")
-			ui.add(egui.DragValue(self.grid_screen_number))
-			if self.grid_screen_number.get() < 1:
-				self.grid_screen_number.set(1)
-		ui.label("Opens the mouse grid around the given screen")
+			represent_numbered_argument(
+				ui,
+				"and then you say a screen number",
+				self.grid_screen_number,
+				1
+			)
+		ui.label("Opens the mouse grid around the given screen. For instance, saying \"grid screen two\" draws the grid on screen 2.")
 		ui.add_space(10)
 		if ui.button("grid close").clicked():
 			actions.user.grid_close()
 		ui.label("Closes the mouse grid")
 
-	def show(self) -> None:
+	def show(self):
 		self.window.show()
 
-	def hide(self) -> None:
+	def hide(self):
 		self.window.hide()
 
 command_menu = CommandMenu()
