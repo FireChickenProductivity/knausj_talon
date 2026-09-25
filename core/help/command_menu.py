@@ -22,6 +22,50 @@ def represent_numbered_argument(ui, description, mutable, minimum=None, maximum=
 	if maximum is not None and value > maximum:
 		mutable.set(maximum)
 
+@dataclass
+class Table:
+	headers: list[str]
+	rows: list[list[str]]
+
+def parse_markdown_columns(line):
+	columns = []
+	i = 0
+	n = len(line)
+
+	while i < n:
+		in_backtick = False
+		start = i
+		# look for the next pipe not inside back ticks
+		while i < n:
+			if line[i] == '`':
+				in_backtick = not in_backtick
+			if line[i] == "|" and  not in_backtick:
+				column = line[start:i].strip()
+				if column:
+					columns.append(column)
+				i += 1
+				break
+			i += 1
+	return columns
+
+def parse_markdown_table(table):
+	"""Convert a string containing a markdown table into a list of headers and rows. When parsing columns, do not consider vertical bar symbols inside backticks to separate columns"""
+	if not table.strip():
+		raise ValueError("Received empty table")
+	lines = [line.strip() for line in table.split("\n") if line.strip()]
+	headers = parse_markdown_columns(lines[0])
+	if not headers:
+		raise ValueError(f"Could not find headers in markdown table {table}")
+	rows = [parse_markdown_columns(line) for line in lines[2:]]
+	if not rows:
+		raise ValueError(f"Could not find rows in markdown table {table}")
+	return Table(headers, rows)
+
+def draw_table(ui, table):
+	headers = table.headers
+	
+
+
 class CommandMenu:
 	def __init__(self):
 		self.window = Window()
@@ -33,7 +77,7 @@ class CommandMenu:
 		self.pages = [
 			Page(self.move_the_mouse_ui, "Move the mouse (voice commands)"),
 			Page(None, "Move the mouse (eye tracking)"),
-			Page(None, "Click"),
+			Page(self.mouse_click_ui, "Click"),
 			Page(None, "Scroll the mouse"),
 			Page(None, "Press keys"),
 			Page(None, "Move the cursor"),
@@ -98,6 +142,17 @@ class CommandMenu:
 		if ui.button("grid close").clicked():
 			actions.user.grid_close()
 		ui.label("Closes the mouse grid")
+
+	async def mouse_click_ui(self, ui):
+		command_table = parse_markdown_table("""| Command      | Description                             |
+| ------------ | --------------------------------------- |
+| `touch`      | single click                            |
+| `duke`       | double click                            |
+| `trip click` | triple click                            |
+| `drag`       | hold down the left mouse button         |
+| `drag end`   | stop holding down the left mouse button |
+| `righty`     | right click                             |""")
+		draw_table(ui, command_table)
 
 	def show(self):
 		self.window.show()
