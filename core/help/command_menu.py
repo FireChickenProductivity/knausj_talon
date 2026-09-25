@@ -86,7 +86,7 @@ async def draw_table(ui, markdown_table, row_height=None, show_row=None):
 	table = header.table()
 	rows = markdown_table.rows
 	if row_height is None:
-		row_height = 20
+		row_height = ui.spacing().interact_size.y
 	if show_row is None:
 		show_row = show_row_with_labels
 	async with table.body() as body:
