@@ -264,16 +264,16 @@ The speed at which you move your head has an exponential effect on the speed the
 
 	async def key_pressing_ui(self, ui):
 		maximum_height = ui.available_height() - 100
-		async with ui.scope() as scope:
-			async with scope.style_mut() as style:
-				font_size = 11
-				font_id = egui.FontId(font_size, egui.FontFamily.Proportional)
-				style.override_font_id = font_id
-				async with ui.with_layout(egui.Layout.left_to_right(egui.Align.TOP)):
+		async with ui.with_layout(egui.Layout.left_to_right(egui.Align.TOP)):
+			async with ui.scope() as scope:
+				async with scope.style_mut() as style:
+					font_size = 11
+					font_id = egui.FontId(font_size, egui.FontFamily.Proportional)
+					style.override_font_id = font_id
 					async with ui.vertical() as vertical_ui:
 						await draw_list(vertical_ui, "user.modifier_key", "Modifier Keys", maximum_height)
-						await draw_list(vertical_ui, "user.arrow_key", "Arrow Keys", maximum_height)
-						await draw_list(vertical_ui, "user.number_key", "Number Keys", maximum_height)
+						await draw_list(vertical_ui, "user.arrow_key", "Arrow Keys*", maximum_height)
+						await draw_list(vertical_ui, "user.number_key", "Number Keys*", maximum_height)
 					async with ui.vertical() as vertical_ui:
 						await draw_list(vertical_ui, "user.special_key", "Special Keys", maximum_height)
 						await draw_list(vertical_ui, "user.function_key", "Function Keys", maximum_height)
@@ -281,6 +281,15 @@ The speed at which you move your head has an exponential effect on the speed the
 						await draw_list(vertical_ui, "user.letter", "Letter Keys", maximum_height)
 					async with ui.vertical() as vertical_ui:
 						await draw_list(vertical_ui, "user.symbol_key", "Symbol Keys", maximum_height)
+					async with ui.vertical():
+						ui.strong("How to Press Keys")
+						ui.separator()
+						ui.strong("Command Mode")
+						ui.add_space(5)
+						ui.label("You press ordinary keys just by saying the spoken forms for the keys. You can do a keystroke by saying the name of a modifier key or multiple modifier keys followed by a key that is not a modifier. Keys in the lists denoted with a * and the modifier keys can only be used as part of a keystroke including a modifier or by saying \"press\" and then the name of the key.")
+						ui.strong("Dictation Mode")
+						ui.add_space(5)
+						ui.label("In dictation mode, you press keys by saying press and then either a key to press or a keystroke.")
 
 
 	def show(self):
