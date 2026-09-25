@@ -166,7 +166,7 @@ class CommandMenu:
 			self.hide()
 
 	async def move_the_mouse_ui(self, ui):
-		ui.label("The mouse grid lets you move the mouse by dictating numbers. You use one of the below commands to open the grid. This divides the area you made the grid around into 9 numbered rectangles. Picking one of the numbers recreates the grid within that rectangle and moves the mouse to the center of that rectangle")
+		ui.label("The mouse grid lets you move the mouse by dictating numbers. You use one of the below commands to open the grid. This divides the area you made the grid around into 9 numbered rectangles. Saying one of the numbers recreates the grid within that rectangle and moves the mouse to the center of that rectangle")
 		ui.add_space(10)
 		if ui.button("mouse grid").clicked():
 			actions.user.grid_select_screen(1)
