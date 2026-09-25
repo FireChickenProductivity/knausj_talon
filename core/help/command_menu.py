@@ -79,7 +79,7 @@ async def show_row_with_buttons(row, contents, text_to_button_function):
 			else:
 				ui.label(column)
 
-async def draw_table(ui, markdown_table, row_height=None, show_row=None):
+async def draw_table(ui, markdown_table, row_height=None, show_row=None, auto_size_columns=False):
 	headers = markdown_table.headers
 	column_width = ui.available_width()/len(headers)
 	table = (
@@ -87,7 +87,12 @@ async def draw_table(ui, markdown_table, row_height=None, show_row=None):
 			.cell_layout(egui.Layout.left_to_right(egui.Align.Center).with_main_wrap(True))
 			.min_scrolled_height(0.0)
 			.max_scroll_height(ui.available_height())
-		).column(egui.Column.remainder().at_most(column_width)).column(egui.Column.remainder().resizable(True).at_most(column_width))
+		)
+	for i in range(len(headers)):
+		if auto_size_columns:
+			table = table.column(egui.Column.auto())
+		else:
+			table = table.column(egui.Column.remainder().at_most(column_width))
 
 	async with table.header(20) as header:
 		for h in headers:
@@ -105,10 +110,23 @@ async def draw_table(ui, markdown_table, row_height=None, show_row=None):
 			row.set_overline(True)
 			await show_row(row, rows)
 
+async def draw_list(ui, name, title=""):
+	if title:
+		ui.strong(title)
+	talon_list = actions.user.talon_get_active_registry_list(name) 
+	rows = [[key, value] for key, value in talon_list.items()]
+	await draw_table(
+		ui,
+		Table(["Spoken Form", "Value"], rows),
+		auto_size_columns=True
+	)
+	
+	
 
 class CommandMenu:
 	def __init__(self):
 		self.window = Window()
+		self.window.toplevel = True
 		self.window.draggable = True
 		self.window.decorated = False
 		self.current_page = None
@@ -119,7 +137,7 @@ class CommandMenu:
 			Page(self.eye_tracking_ui, "Move the mouse (eye tracking)"),
 			Page(self.mouse_click_ui, "Click"),
 			Page(self.mouse_scrolling_ui, "Scroll the mouse"),
-			Page(None, "Press keys"),
+			Page(self.key_pressing_ui, "Press keys"),
 			Page(None, "Move the cursor"),
 			Page(None, "Type text")
 		]
@@ -239,6 +257,9 @@ The speed at which you move your head has an exponential effect on the speed the
 | `wheel downer` | continually scroll down with the mouse |
 | `wheel stop`   | stop scrolling                         |""")
 		await draw_table(ui, command_table)
+
+	async def key_pressing_ui(self, ui):
+		await draw_list(ui, "user.modifier_key", "Modifier Keys")
 
 
 	def show(self):
