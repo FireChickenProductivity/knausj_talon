@@ -87,6 +87,7 @@ async def draw_table(ui, markdown_table, row_height=None, show_row=None, auto_si
 			.cell_layout(egui.Layout.left_to_right(egui.Align.Center).with_main_wrap(True))
 			.min_scrolled_height(0.0)
 			.max_scroll_height(ui.available_height())
+			.id_salt(str(markdown_table.rows))
 		)
 	for i in range(len(headers)):
 		if auto_size_columns:
@@ -130,7 +131,7 @@ class CommandMenu:
 		self.window.draggable = True
 		self.window.decorated = False
 		self.current_page = None
-		self.window.rect = skia.Rect(x=10, y=20, width=600, height=600)
+		self.window.rect = skia.Rect(x=10, y=20, width=700, height=800)
 		self.window.set_content(self.ui)
 		self.pages = [
 			Page(self.move_the_mouse_ui, "Move the mouse (voice commands)"),
@@ -262,8 +263,15 @@ The speed at which you move your head has an exponential effect on the speed the
 		async with ui.with_layout(egui.Layout.left_to_right(egui.Align.TOP)):
 			async with ui.vertical() as vertical_ui:
 				await draw_list(vertical_ui, "user.modifier_key", "Modifier Keys")
+				await draw_list(vertical_ui, "user.arrow_key", "Arrow Keys")
+				await draw_list(vertical_ui, "user.number_key", "Number Keys")
+			async with ui.vertical() as vertical_ui:
+				await draw_list(vertical_ui, "user.special_key", "Special Keys")
+				await draw_list(vertical_ui, "user.function_key", "Function Keys")
 			async with ui.vertical() as vertical_ui:
 				await draw_list(vertical_ui, "user.letter", "Letter Keys")
+			async with ui.vertical() as vertical_ui:
+				await draw_list(vertical_ui, "user.symbol_key", "Symbol Keys")
 
 
 	def show(self):
