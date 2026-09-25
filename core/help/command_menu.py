@@ -107,7 +107,7 @@ class CommandMenu:
 		self.window.set_content(self.ui)
 		self.pages = [
 			Page(self.move_the_mouse_ui, "Move the mouse (voice commands)"),
-			Page(None, "Move the mouse (eye tracking)"),
+			Page(self.eye_tracking_ui, "Move the mouse (eye tracking)"),
 			Page(self.mouse_click_ui, "Click"),
 			Page(None, "Scroll the mouse"),
 			Page(None, "Press keys"),
@@ -183,6 +183,15 @@ class CommandMenu:
 | `drag`       | hold down the left mouse button         |
 | `drag end`   | stop holding down the left mouse button |
 | `righty`     | right click                             |""")
+		await draw_table(ui, command_table)
+
+	async def eye_tracking_ui(self, ui):
+		command_table = parse_markdown_table("""| Commands          | Description                          |
+| ----------------- | ------------------------------------ |
+| `run calibration` | start Tobii calibration              |
+| `control mouse`   | toggle on/off Tobii moving the mouse |
+| `zoom mouse`      | Toggle Control Mouse (Zoom).         |
+| `control off`     | Turn the eye tracker off             |""")
 		await draw_table(ui, command_table)
 
 	def show(self):
