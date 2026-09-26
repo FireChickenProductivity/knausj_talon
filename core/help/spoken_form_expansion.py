@@ -12,14 +12,15 @@ def compute_relevant_rules_for_text(text):
 	return []
 
 class SpokenForm:
-	def __init__(self, type_name, text, get_description, get_key_value_pairs):
+	def __init__(self, type_name, text, get_description, get_key_value_pairs, name):
 		self.type_name = type_name
 		self.text = text
 		self.get_description = get_description
 		self.get_key_value_pairs = get_key_value_pairs
+		self.name = name
 
 	async def ui(self, ui, path):
-		ui.strong(f"{self.type_name}: {self.text}")
+		ui.strong(f"{self.type_name} ({self.name}): {self.text}")
 		description = self.get_description()
 		if description:
 			ui.label(description)
@@ -32,7 +33,7 @@ class SpokenForm:
 		if sub_spoken_forms:
 			ui.separator()
 			for spoken_form in sub_spoken_forms:
-				if ui.button(spoken_form.text).clicked():
+				if ui.button(spoken_form.name).clicked():
 					path.append(spoken_form)
 		pairs = self.get_key_value_pairs()
 		if pairs:
@@ -77,7 +78,6 @@ def compute_spoken_forms(text, exclude_total=True):
 			return []
 		if c in ("{", "<"):
 			start = i
-			print('start', start)
 		elif c == "}":
 			form_text = text[start:i+1]
 			list_name = form_text[1:-1]
@@ -85,7 +85,8 @@ def compute_spoken_forms(text, exclude_total=True):
 				"list",
 				form_text,
 				lambda : get_list_description(list_name),
-				lambda : get_list_contents(list_name)
+				lambda : get_list_contents(list_name),
+				list_name,
 			)
 			forms.append(form)
 			start = None
@@ -96,7 +97,8 @@ def compute_spoken_forms(text, exclude_total=True):
 				"capture",
 				get_capture_rule(capture_name),
 				lambda : get_capture_description(capture_name),
-				lambda : []
+				lambda : [],
+				capture_name,
 			)
 			forms.append(form)
 			start = None
@@ -129,3 +131,10 @@ class ExpansionDemo:
 
 demo = ExpansionDemo()
 demo.show(compute_spoken_forms("<user.keys>", exclude_total=False)[-1])
+
+mod = Module()
+@mod.action_class
+class Actions:
+	def screenshot_expansion_demo():
+		"""Remove before merge"""
+		actions.user.samuel_screenshot_around_window(demo.window)
