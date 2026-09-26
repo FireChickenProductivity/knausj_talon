@@ -12,6 +12,7 @@ from typing import Callable
 class Page:
 	ui: Callable
 	title: str
+	contains_navigation_buttons_itself: bool=False
 
 def represent_numbered_argument(ui, description, mutable, minimum=None, maximum=None):
 	ui.label(f"({description}): ")
@@ -141,7 +142,7 @@ class CommandMenu:
 			Page(self.eye_tracking_ui, "Move the mouse (eye tracking)"),
 			Page(self.mouse_click_ui, "Click"),
 			Page(self.mouse_scrolling_ui, "Scroll the mouse"),
-			Page(self.key_pressing_ui, "Press keys"),
+			Page(self.key_pressing_ui, "Press keys", contains_navigation_buttons_itself=True),
 			Page(None, "Move the cursor"),
 			Page(None, "Type text")
 		]
@@ -149,6 +150,7 @@ class CommandMenu:
 		self.grid_narrowing_number = Mutable(1)
 
 	async def ui(self, ui):
+		show_navigation_buttons_here: bool = True
 		if self.current_page is None:
 			ui.strong("What do you want to do?")
 			ui.separator()
@@ -159,9 +161,18 @@ class CommandMenu:
 		else:
 			page = self.pages[self.current_page]
 			await page.ui(ui)
+			show_navigation_buttons_here = not page.contains_navigation_buttons_itself
 			ui.add_space(10)
-			if ui.button("command menu").clicked():
-				self.current_page = None
+			if show_navigation_buttons_here:
+				self.draw_menu_button(ui)
+		if show_navigation_buttons_here:
+			self.draw_close_menu_button(ui)
+
+	def draw_menu_button(self, ui):
+		if ui.button("command menu").clicked():
+			self.current_page = None
+
+	def draw_close_menu_button(self, ui):
 		if ui.button("Command menu close").clicked():
 			self.hide()
 
@@ -263,7 +274,6 @@ The speed at which you move your head has an exponential effect on the speed the
 		await draw_table(ui, command_table)
 
 	async def key_pressing_ui(self, ui):
-		maximum_height = ui.available_height() - 100
 		async with ui.with_layout(egui.Layout.left_to_right(egui.Align.TOP)):
 			async with ui.scope() as scope:
 				async with scope.style_mut() as style:
@@ -271,16 +281,22 @@ The speed at which you move your head has an exponential effect on the speed the
 					font_id = egui.FontId(font_size, egui.FontFamily.Proportional)
 					style.override_font_id = font_id
 					async with ui.vertical() as vertical_ui:
-						await draw_list(vertical_ui, "user.modifier_key", "Modifier Keys", maximum_height)
-						await draw_list(vertical_ui, "user.arrow_key", "Arrow Keys*", maximum_height)
-						await draw_list(vertical_ui, "user.number_key", "Number Keys*", maximum_height)
+						await draw_list(vertical_ui, "user.modifier_key", "Modifier Keys")
+						ui.add_space(5)
+						await draw_list(vertical_ui, "user.arrow_key", "Arrow Keys*")
+						ui.add_space(5)
+						await draw_list(vertical_ui, "user.number_key", "Number Keys*")
+					ui.separator()
 					async with ui.vertical() as vertical_ui:
-						await draw_list(vertical_ui, "user.special_key", "Special Keys", maximum_height)
-						await draw_list(vertical_ui, "user.function_key", "Function Keys", maximum_height)
+						await draw_list(vertical_ui, "user.special_key", "Special Keys")
+						await draw_list(vertical_ui, "user.function_key", "Function Keys")
+					ui.separator()
 					async with ui.vertical() as vertical_ui:
-						await draw_list(vertical_ui, "user.letter", "Letter Keys", maximum_height)
+						await draw_list(vertical_ui, "user.letter", "Letter Keys")
+					ui.separator()
 					async with ui.vertical() as vertical_ui:
-						await draw_list(vertical_ui, "user.symbol_key", "Symbol Keys", maximum_height)
+						await draw_list(vertical_ui, "user.symbol_key", "Symbol Keys")
+					ui.separator()
 					async with ui.vertical():
 						ui.strong("How to Press Keys")
 						ui.separator()
@@ -290,6 +306,9 @@ The speed at which you move your head has an exponential effect on the speed the
 						ui.strong("Dictation Mode")
 						ui.add_space(5)
 						ui.label("In dictation mode, you press keys by saying press and then either a key to press or a keystroke.")
+						ui.add_space(10)
+						self.draw_menu_button(ui)
+						self.draw_close_menu_button(ui)
 
 
 	def show(self):
@@ -311,3 +330,8 @@ class Actions:
 	def hide_command_menu():
 		"""Hide the Community command menu"""
 		command_menu.hide()
+
+	def screenshot_command_menu():
+		"""Screenshot the current page saving to the clipboard. Depends on Sam's community fork. Remove this before merge"""
+		if command_menu:
+			actions.user.samuel_screenshot_around_window(command_menu.window)

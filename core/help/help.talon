@@ -35,3 +35,5 @@ help re formatters | help re format | re format help:
 
 command menu: user.show_command_menu()
 command menu close: user.hide_command_menu()
+# remove this before merge
+command menu clip: user.screenshot_command_menu()
