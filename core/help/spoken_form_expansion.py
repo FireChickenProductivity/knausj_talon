@@ -124,13 +124,16 @@ class ExpansionDemo:
 		self.window.set_content(self.ui)
 		self.root = None
 
-	async def show_expansion(self, ui, encountered=None, root=None):
+	async def show_expansion(self, ui, encountered=None, root=None, title=None):
 		ui.separator()
 		if encountered is None:
 			encountered = set()
 		if root is None:
 			root = self.root
-		ui.strong(f"Expansion Of {root}")
+		if title is None:
+			ui.strong(f"Expansion Of {root}")
+		else:
+			ui.strong(title)
 		lists, captures = compute_spoken_forms(root, exclude_total=False)
 		encountered.add(root)
 		new_captures = []
@@ -152,7 +155,7 @@ class ExpansionDemo:
 							pass
 						new_captures.append(c)
 		for c in new_captures:
-			await self.show_expansion(ui, encountered, c.text)
+			await self.show_expansion(ui, encountered, c.text, f"Capture {c.name}. Rule: {c.text}")
 
 	async def ui(self, ui):
 		if self.root:
