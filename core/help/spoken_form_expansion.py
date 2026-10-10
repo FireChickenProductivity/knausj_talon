@@ -155,7 +155,7 @@ class ExpansionDemo:
 							encountered.add(c.text)
 							new_captures.append(c)
 						if ui.button(c.name).clicked():
-							pass
+							self.root = c.text
 			for c in new_captures:
 				await self.show_expansion(ui, encountered, c.text, c)
 
