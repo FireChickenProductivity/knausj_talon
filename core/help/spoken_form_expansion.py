@@ -134,7 +134,7 @@ class ExpansionDemo:
 		if capture is None:
 			title = f"Expansion Of {root}"
 		else:
-			title = f"Capture {capture.name}. Description: {capture.get_description()}"
+			title = f"Capture {capture.name}. {capture.get_description()}"
 		ui.strong(title)
 		if capture:
 			ui.label(f"Rule: {capture.text}")
@@ -142,14 +142,13 @@ class ExpansionDemo:
 		encountered.add(root)
 		new_captures = []
 		async with ui.indent(title):
-			if lists:
-				async with ui.horizontal_wrapped():
+			async with ui.horizontal_wrapped():
+				if lists:
 					ui.label("lists: ")
 					for l in lists:
 						if ui.button(l.name).clicked():
 							pass
-			if captures:
-				async with ui.horizontal_wrapped():
+				if captures:
 					ui.label("captures: ")
 					for c in captures:
 						if c.text not in encountered:
