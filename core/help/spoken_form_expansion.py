@@ -138,13 +138,13 @@ class ExpansionDemo:
 			title = f"Expansion Of {root}"
 		else:
 			title = f"Capture {capture.name}. {capture.get_description()}"
-		ui.strong(title)
-		if capture:
-			ui.label(f"Rule: {capture.text}")
-		lists, captures = compute_spoken_forms(root, exclude_total=False)
-		encountered.add(root)
-		new_captures = []
-		async with ui.indent(title):
+		collapsing_header = egui.CollapsingHeader(title).default_open(True)
+		async with collapsing_header.show():
+			if capture:
+				ui.label(f"Rule: {capture.text}")
+			lists, captures = compute_spoken_forms(root, exclude_total=False)
+			encountered.add(root)
+			new_captures = []
 			async with ui.horizontal_wrapped():
 				if lists:
 					ui.label("lists: ")
