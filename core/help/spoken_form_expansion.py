@@ -132,29 +132,29 @@ class ExpansionDemo:
 		if root is None:
 			root = self.root
 		if title is None:
-			ui.strong(f"Expansion Of {root}")
-		else:
-			ui.strong(title)
+			title = f"Expansion Of {root}"
+		ui.strong(title)
 		lists, captures = compute_spoken_forms(root, exclude_total=False)
 		encountered.add(root)
 		new_captures = []
-		if lists:
-			async with ui.horizontal_wrapped():
-				ui.label("lists: ")
-				for l in lists:
-					if ui.button(l.name).clicked():
-						pass
-		if captures:
-			async with ui.horizontal_wrapped():
-				ui.label("captures: ")
-				for c in captures:
-					if c.text not in encountered:
-						encountered.add(c.text)
-						new_captures.append(c)
-					if ui.button(c.name).clicked():
-						pass
-		for c in new_captures:
-			await self.show_expansion(ui, encountered, c.text, f"Capture {c.name}. Rule: {c.text}")
+		async with ui.indent(title):
+			if lists:
+				async with ui.horizontal_wrapped():
+					ui.label("lists: ")
+					for l in lists:
+						if ui.button(l.name).clicked():
+							pass
+			if captures:
+				async with ui.horizontal_wrapped():
+					ui.label("captures: ")
+					for c in captures:
+						if c.text not in encountered:
+							encountered.add(c.text)
+							new_captures.append(c)
+						if ui.button(c.name).clicked():
+							pass
+			for c in new_captures:
+				await self.show_expansion(ui, encountered, c.text, f"Capture {c.name}. Rule: {c.text}")
 
 	async def ui(self, ui):
 		if self.root:
