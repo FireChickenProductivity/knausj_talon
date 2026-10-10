@@ -118,22 +118,26 @@ def compute_spoken_forms(text, exclude_total=True):
 class ExpansionDemo:
 	def __init__(self):
 		self.window = Window()
-		self.window.rect = skia.Rect(500, 100, 500, 800)
+		self.window.rect = skia.Rect(500, 100, 700, 800)
 		self.window.toplevel = True
 		self.window.draggable = True
 		self.window.decorated = False
 		self.window.set_content(self.ui)
 		self.root = None
 
-	async def show_expansion(self, ui, encountered=None, root=None, title=None):
+	async def show_expansion(self, ui, encountered=None, root=None, capture: SpokenForm | None=None):
 		ui.separator()
 		if encountered is None:
 			encountered = set()
 		if root is None:
 			root = self.root
-		if title is None:
+		if capture is None:
 			title = f"Expansion Of {root}"
+		else:
+			title = f"Capture {capture.name}. Description: {capture.get_description()}"
 		ui.strong(title)
+		if capture:
+			ui.label(f"Rule: {capture.text}")
 		lists, captures = compute_spoken_forms(root, exclude_total=False)
 		encountered.add(root)
 		new_captures = []
@@ -154,7 +158,7 @@ class ExpansionDemo:
 						if ui.button(c.name).clicked():
 							pass
 			for c in new_captures:
-				await self.show_expansion(ui, encountered, c.text, f"Capture {c.name}. Rule: {c.text}")
+				await self.show_expansion(ui, encountered, c.text, c)
 
 	async def ui(self, ui):
 		if self.root:
@@ -184,3 +188,7 @@ class Actions:
 	def screenshot_expansion_demo():
 		"""Remove before merge"""
 		actions.user.samuel_screenshot_around_window(demo.window)
+
+	def hide_expansion_window():
+		""""""
+		demo.hide()
