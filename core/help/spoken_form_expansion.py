@@ -66,9 +66,12 @@ def get_capture_description(name):
 	return registry.decls.captures[name].desc
 
 def get_capture_rule(name):
-	capture = registry.captures[name][-1]
-	rule = capture.rule
-	return rule.rule
+	try:
+		capture = registry.captures[name][-1]
+		rule = capture.rule
+		return rule.rule
+	except Exception as ex:
+		return "Could not find rule. Something went wrong."
 
 def create_list(name, form_text):
 	return SpokenForm(
@@ -179,7 +182,7 @@ class ExpansionDemo:
 		self.window.hide()
 
 demo = ExpansionDemo()
-demo.show("<user.keys>")
+demo.show("<user.prose>")
 
 mod = Module()
 @mod.action_class
