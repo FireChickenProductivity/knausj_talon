@@ -118,6 +118,7 @@ def compute_spoken_forms(text, exclude_total=True):
 class ExpansionDemo:
 	def __init__(self):
 		self.window = Window()
+		self.window.rect = skia.Rect(500, 100, 500, 800)
 		self.window.toplevel = True
 		self.window.draggable = True
 		self.window.decorated = False
@@ -141,19 +142,17 @@ class ExpansionDemo:
 			async with ui.horizontal_wrapped():
 				ui.label("lists: ")
 				for l in lists:
-					if l.text not in encountered:
-						encountered.add(l.text)
-						if ui.button(l.name).clicked():
-							pass
+					if ui.button(l.name).clicked():
+						pass
 		if captures:
 			async with ui.horizontal_wrapped():
 				ui.label("captures: ")
 				for c in captures:
 					if c.text not in encountered:
 						encountered.add(c.text)
-						if ui.button(c.name).clicked():
-							pass
 						new_captures.append(c)
+					if ui.button(c.name).clicked():
+						pass
 		for c in new_captures:
 			await self.show_expansion(ui, encountered, c.text, f"Capture {c.name}. Rule: {c.text}")
 
