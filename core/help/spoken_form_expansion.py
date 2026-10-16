@@ -63,7 +63,10 @@ def get_list_contents(name):
 		return []
 
 def get_capture_description(name):
-	return registry.decls.captures[name].desc
+	try:
+		return registry.decls.captures[name].desc
+	except KeyError as ex:
+		return "Could not find description"
 
 def get_capture_rule(name):
 	try:
@@ -96,6 +99,7 @@ def compute_spoken_forms(text, exclude_total=True):
 	text = text.strip()
 	lists = []
 	captures = []
+	encountered = set()
 	start = None
 	for i, c in enumerate(text):
 		if exclude_total and i == len(text) - 1 and start == 0:
@@ -105,14 +109,18 @@ def compute_spoken_forms(text, exclude_total=True):
 		elif c == "}":
 			form_text = text[start:i+1]
 			list_name = form_text[1:-1]
-			form = create_list(list_name, form_text)
-			lists.append(form)
+			if form_text not in encountered:
+				form = create_list(list_name, form_text)
+				lists.append(form)
+			encountered.add(form_text)
 			start = None
 		elif c == ">":
 			form_text = text[start:i+1]
 			capture_name = form_text[1:-1]
-			form = create_capture(capture_name)
-			captures.append(form)
+			if form_text not in encountered:
+				form = create_capture(capture_name)
+				captures.append(form)
+			encountered.add(form_text)
 			start = None
 	return lists, captures
 
@@ -135,31 +143,27 @@ class ExpansionDemo:
 		if root is None:
 			root = self.root
 		if capture is None:
-			title = f"Expansion Of {root}"
+			title = f"Expansion of {root}"
+			show_by_default = True
 		else:
 			title = f"Capture {capture.name}. {capture.get_description()}"
-		collapsing_header = egui.CollapsingHeader(title).default_open(True)
+			show_by_default = capture.text not in encountered
+			encountered.add(capture.text)
+		collapsing_header = egui.CollapsingHeader(title).default_open(show_by_default)
 		async with collapsing_header.show():
 			if capture:
-				ui.label(f"Rule: {capture.text}")
+				async with ui.horizontal_wrapped():
+					ui.label(f"Rule: {capture.text}")
+					if ui.button("Make root").clicked():
+						self.root = capture.text
 			lists, captures = compute_spoken_forms(root, exclude_total=False)
-			encountered.add(root)
-			new_captures = []
 			async with ui.horizontal_wrapped():
 				if lists:
 					ui.label("lists: ")
 					for l in lists:
 						if ui.button(l.name).clicked():
 							pass
-				if captures:
-					ui.label("captures: ")
-					for c in captures:
-						if c.text not in encountered:
-							encountered.add(c.text)
-							new_captures.append(c)
-						if ui.button(c.name).clicked():
-							self.root = c.text
-			for c in new_captures:
+			for c in captures:
 				await self.show_expansion(ui, encountered, c.text, c)
 
 	async def ui(self, ui):
