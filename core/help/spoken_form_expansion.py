@@ -146,25 +146,29 @@ class ExpansionDemo:
 			title = f"Expansion of {root}"
 			show_by_default = True
 		else:
-			title = f"Capture {capture.name}. {capture.get_description()}"
+			title = f"Capture <{capture.name}>."
 			show_by_default = capture.text not in encountered
 			encountered.add(capture.text)
 		collapsing_header = egui.CollapsingHeader(title).default_open(show_by_default)
-		async with collapsing_header.show():
-			if capture:
+		async with ui.group():
+			async with collapsing_header.show():
+				if capture:
+					description = capture.get_description()
+					if description:
+						ui.label(f"Description: {description}")
+					async with ui.horizontal_wrapped():
+						ui.label(f"Rule: {capture.text}")
+						if ui.button("Make root").clicked():
+							self.root = capture.text
+				lists, captures = compute_spoken_forms(root, exclude_total=False)
 				async with ui.horizontal_wrapped():
-					ui.label(f"Rule: {capture.text}")
-					if ui.button("Make root").clicked():
-						self.root = capture.text
-			lists, captures = compute_spoken_forms(root, exclude_total=False)
-			async with ui.horizontal_wrapped():
-				if lists:
-					ui.label("lists: ")
-					for l in lists:
-						if ui.button(l.name).clicked():
-							pass
-			for c in captures:
-				await self.show_expansion(ui, encountered, c.text, c)
+					if lists:
+						ui.label("lists: ")
+						for l in lists:
+							if ui.button(l.name).clicked():
+								pass
+				for c in captures:
+					await self.show_expansion(ui, encountered, c.text, c)
 
 	async def ui(self, ui):
 		if self.root:
