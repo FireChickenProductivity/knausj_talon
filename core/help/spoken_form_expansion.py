@@ -137,7 +137,6 @@ class ExpansionDemo:
 		self.root = None
 
 	async def show_expansion(self, ui, encountered=None, root=None, capture: SpokenForm | None=None):
-		ui.separator()
 		if encountered is None:
 			encountered = set()
 		if root is None:
@@ -151,24 +150,29 @@ class ExpansionDemo:
 			encountered.add(capture.text)
 		collapsing_header = egui.CollapsingHeader(title).default_open(show_by_default)
 		async with ui.group():
-			async with collapsing_header.show():
-				if capture:
-					description = capture.get_description()
-					if description:
-						ui.label(f"Description: {description}")
+			async with ui.scope() as scope, scope.style_mut() as style:
+				# make scrollbar always visible when a scroll area is needed
+				visuals = style.visuals()
+				visuals.indent_has_left_vline = False
+				style.set_visuals(visuals)
+				async with collapsing_header.show():
+					if capture:
+						description = capture.get_description()
+						if description:
+							ui.label(f"Description: {description}")
+						async with ui.horizontal_wrapped():
+							ui.label(f"Rule: {capture.text}")
+							if ui.button("Make root").clicked():
+								self.root = capture.text
+					lists, captures = compute_spoken_forms(root, exclude_total=False)
 					async with ui.horizontal_wrapped():
-						ui.label(f"Rule: {capture.text}")
-						if ui.button("Make root").clicked():
-							self.root = capture.text
-				lists, captures = compute_spoken_forms(root, exclude_total=False)
-				async with ui.horizontal_wrapped():
-					if lists:
-						ui.label("lists: ")
-						for l in lists:
-							if ui.button(l.name).clicked():
-								pass
-				for c in captures:
-					await self.show_expansion(ui, encountered, c.text, c)
+						if lists:
+							ui.label("lists: ")
+							for l in lists:
+								if ui.button(l.name).clicked():
+									pass
+					for c in captures:
+						await self.show_expansion(ui, encountered, c.text, c)
 
 	async def ui(self, ui):
 		if self.root:
