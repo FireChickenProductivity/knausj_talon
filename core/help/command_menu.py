@@ -190,8 +190,8 @@ class CommandMenu:
 		self.window.toplevel = True
 		self.window.draggable = True
 		self.window.decorated = False
-		self.current_page = None
-		self.window.rect = skia.Rect(x=10, y=20, width=700, height=800)
+		self.current_page =  4
+		self.window.rect = skia.Rect(x=10, y=20, width=1000, height=1000)
 		self.window.set_content(self.ui)
 		self.pages = [
 			Page(self.move_the_mouse_ui, "Move the mouse (voice commands)"),
@@ -363,7 +363,7 @@ The speed at which you move your head has an exponential effect on the speed the
 
 
 	def show(self):
-		self.current_page = None
+		# self.current_page = None
 		self.window.show()
 
 	def hide(self):
