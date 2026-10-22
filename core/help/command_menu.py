@@ -186,6 +186,7 @@ async def draw_list(ui, name, scroller_name, title):
 
 class CommandMenu:
 	def __init__(self):
+		self.current_page =  4
 		self.pages = [
 			Page(self.move_the_mouse_ui, "Move the mouse (voice commands)"),
 			Page(self.eye_tracking_ui, "Move the mouse (eye tracking)"),
@@ -363,7 +364,7 @@ The speed at which you move your head has an exponential effect on the speed the
 		actions.user.hide_command_menu()
 
 command_menu = CommandMenu()
-@open_gui(y=0, width=0.6, height=0.8, refresh_period="500ms")
+@open_gui(y=0, width=0.6, height=0.9, refresh_period="500ms")
 async def gui(ui, ui_wrapper):
 	await command_menu.ui(ui)
 
