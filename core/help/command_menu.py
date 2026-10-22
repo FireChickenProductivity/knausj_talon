@@ -370,7 +370,7 @@ The speed at which you move your head has an exponential effect on the speed the
 		actions.user.hide_command_menu()
 
 command_menu = CommandMenu()
-@open_gui(y=0, width=0.8, height=0.8, refresh_period="500ms")
+@open_gui(y=0, width=0.6, height=0.8, refresh_period="500ms")
 async def gui(ui, ui_wrapper):
 	await command_menu.ui(ui)
 
