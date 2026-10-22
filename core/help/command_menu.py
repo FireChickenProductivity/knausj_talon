@@ -357,9 +357,9 @@ The speed at which you move your head has an exponential effect on the speed the
 				ui.strong("Dictation Mode")
 				ui.add_space(5)
 				ui.label("In dictation mode, you press keys by saying press and then either a key to press or a keystroke.")
-				ui.add_space(10)
-				self.draw_menu_button(ui)
-				self.draw_close_menu_button(ui)
+				# ui.add_space(10)
+				# self.draw_menu_button(ui)
+				# self.draw_close_menu_button(ui)
 
 
 	def show(self):
