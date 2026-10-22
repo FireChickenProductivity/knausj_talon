@@ -120,8 +120,7 @@ page_scrollers = {}
 for scroller_name in ("arrow", "modifier", "number", "special", "function", "letter", "symbol"):
 	page_scrollers[scroller_name] = PageScroller()
 
-async def draw_list(ui, name, scroller_name, title):
-	ui_wrapper = UIWrapper(ui)
+async def draw_list(ui, ui_wrapper, name, scroller_name, title):
 	selected_list = name
 	page_scroller = page_scrollers[scroller_name]
 
@@ -168,7 +167,8 @@ async def draw_list(ui, name, scroller_name, title):
 			row_height=row_size,
 			id_salt=title,
 			scroller=page_scroller,
-			auto_size_columns=True
+			# temporary measure
+			auto_size_columns=len(rows) < page_size
 		)
 
 	ui_wrapper.spacing()
@@ -199,7 +199,7 @@ class CommandMenu:
 		self.grid_screen_number = Mutable(2)
 		self.grid_narrowing_number = Mutable(1)
 
-	async def ui(self, ui):
+	async def ui(self, ui, ui_wrapper):
 		show_navigation_buttons_here: bool = True
 		if self.current_page is None:
 			ui.strong("What do you want to do?")
@@ -210,7 +210,7 @@ class CommandMenu:
 			ui.add_space(10)
 		else:
 			page = self.pages[self.current_page]
-			await page.ui(ui)
+			await page.ui(ui, ui_wrapper)
 			show_navigation_buttons_here = not page.contains_navigation_buttons_itself
 			ui.add_space(10)
 			if show_navigation_buttons_here:
@@ -323,24 +323,24 @@ The speed at which you move your head has an exponential effect on the speed the
 | `wheel stop`   | stop scrolling						 |""")
 		await draw_table(ui, command_table)
 
-	async def key_pressing_ui(self, ui):
+	async def key_pressing_ui(self, ui, ui_wrapper):
 		async with ui.with_layout(egui.Layout.left_to_right(egui.Align.TOP)):
 			async with ui.vertical() as vertical_ui:
-				await draw_list(vertical_ui, "user.modifier_key", "modifier", "Modifier Keys")
+				await draw_list(vertical_ui, ui_wrapper, "user.modifier_key", "modifier", "Modifier Keys")
 				ui.add_space(5)
-				await draw_list(vertical_ui, "user.arrow_key", "arrow", "Arrow Keys*")
+				await draw_list(vertical_ui, ui_wrapper, "user.arrow_key", "arrow", "Arrow Keys*")
 				ui.add_space(5)
-				await draw_list(vertical_ui, "user.number_key", "number", "Number Keys*")
+				await draw_list(vertical_ui, ui_wrapper, "user.number_key", "number", "Number Keys*")
 			ui.separator()
 			async with ui.vertical() as vertical_ui:
-				await draw_list(vertical_ui, "user.special_key", "special", "Special Keys")
-				await draw_list(vertical_ui, "user.function_key", "function", "Function Keys")
+				await draw_list(vertical_ui, ui_wrapper, "user.special_key", "special", "Special Keys")
+				await draw_list(vertical_ui, ui_wrapper, "user.function_key", "function", "Function Keys")
 			ui.separator()
 			async with ui.vertical() as vertical_ui:
-				await draw_list(vertical_ui, "user.letter", "letter", "Letter Keys")
+				await draw_list(vertical_ui, ui_wrapper, "user.letter", "letter", "Letter Keys")
 			ui.separator()
 			async with ui.vertical() as vertical_ui:
-				await draw_list(vertical_ui, "user.symbol_key", "symbol", "Symbol Keys")
+				await draw_list(vertical_ui, ui_wrapper, "user.symbol_key", "symbol", "Symbol Keys")
 			ui.separator()
 			async with ui.vertical():
 				ui.strong("How to Press Keys")
@@ -364,9 +364,9 @@ The speed at which you move your head has an exponential effect on the speed the
 		actions.user.hide_command_menu()
 
 command_menu = CommandMenu()
-@open_gui(y=0, width=0.6, height=0.9, refresh_period="500ms")
+@open_gui(y=0, width=0.6, height=0.8, refresh_period="500ms")
 async def gui(ui, ui_wrapper):
-	await command_menu.ui(ui)
+	await command_menu.ui(ui, ui_wrapper)
 
 mod = Module()
 @mod.action_class
