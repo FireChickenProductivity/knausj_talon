@@ -161,7 +161,7 @@ async def draw_list(ui, name, scroller_name, title, maximum_height=None):
 			rows,
 			maximum_height=maximum_height,
 			row_height=row_size,
-			id_salt="help_list",
+			id_salt=title,
 			scroller=page_scroller,
 			auto_size_columns=True
 		)
