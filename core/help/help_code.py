@@ -4,6 +4,8 @@ from dataclasses import dataclass
 
 from ..gui.gui import open_gui
 
+mod = Module()
+
 @dataclass
 class CodeTag:
 	name: str
@@ -45,7 +47,7 @@ async def gui_code(ui, ui_wrapper):
 
 	for tag in tags:
 		if True:
-			ui.strong(f"tag: {tag}")
+			ui.strong(f"tag: {tag.name}")
 			if ui_wrapper.button(f"See Commands"):
 				pass
 			if tag.lists:
@@ -56,7 +58,18 @@ async def gui_code(ui, ui_wrapper):
 				async with ui.horizontal_wrapped():
 					ui.strong(list_section_title)
 					for l in tag.lists:
-						if ui.button(l).clicked():
+						if ui_wrapper.button(l):
 							pass
 			ui.separator()
+	if ui_wrapper.button("help close"):
+		gui_code.hide()
+
+	
 					
+@mod.action_class
+class Actions:
+	def help_code():
+		"""Show help for the active programming language"""
+		gui_code.show()
+
+	

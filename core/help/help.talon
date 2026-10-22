@@ -27,6 +27,7 @@ help edit repeatable modifiers: user.help_list("user.edit_modifier_repeatable")
 help customize: user.help_list("user.edit_text_file")
 help websites: user.help_list("user.website")
 help search engines: user.help_list("user.search_engine")
+help code: user.help_code()
 
 help formatters | help format | format help:
     user.help_formatters(user.get_formatters_words(), false)
