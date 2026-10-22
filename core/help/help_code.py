@@ -2,6 +2,7 @@ from talon import actions, Module, Context, registry
 
 from dataclasses import dataclass
 
+from ..gui.gui import open_gui
 
 @dataclass
 class CodeTag:
@@ -36,3 +37,26 @@ tags = [
 # 		detected_tags.append(tag)
 # actions.insert(detected_tags)
 
+@open_gui(refresh_period="500ms")
+async def gui_code(ui, ui_wrapper):
+	title = "Help Code"
+	subtitle = f"Active Programming Language: {actions.code.language()}"
+	ui_wrapper.title(title, subtitle)
+
+	for tag in tags:
+		if True:
+			ui.strong(f"tag: {tag}")
+			if ui_wrapper.button(f"See Commands"):
+				pass
+			if tag.lists:
+				if len(tag.lists) > 1:
+					list_section_title = "Lists: "
+				else:
+					list_section_title = "List: "
+				async with ui.horizontal_wrapped():
+					ui.strong(list_section_title)
+					for l in tag.lists:
+						if ui.button(l).clicked():
+							pass
+			ui.separator()
+					
