@@ -1,4 +1,6 @@
-from talon import Module, Context, actions
+from talon import Module, Context, actions, registry, settings
+
+from ..gui.gui import open_gui, UIWrapper, convert_key_value_pairs_to_rows, compute_table_height, PageScroller
 
 import egui
 from egui import Mutable
@@ -114,17 +116,66 @@ async def draw_table(ui, markdown_table, row_height=None, show_row=None, auto_si
 			row.set_overline(True)
 			await show_row(row, rows)
 
-async def draw_list(ui, name, title="", maximum_height=None):
-	if title:
-		ui.strong(title)
-	talon_list = actions.user.talon_get_active_registry_list(name) 
-	rows = [[key, value] for key, value in talon_list.items()]
-	await draw_table(
-		ui,
-		Table(["Spoken Form", "Value"], rows),
-		auto_size_columns=True,
-		maximum_height=maximum_height
+page_scrollers = {}
+for scroller_name in ("arrow", "modifier", "number", "special", "function", "letter", "symbol"):
+	page_scrollers[scroller_name] = PageScroller()
+
+async def draw_list(ui, name, scroller_name, title, maximum_height=None):
+	ui_wrapper = UIWrapper(ui)
+	selected_list = name
+	page_scroller = page_scrollers[scroller_name]
+
+	# clicking the close button forces a refresh even though we are closing this gui.
+	# #If we are closing this list, just return
+	if not selected_list:
+		return
+
+	# show list name and description for the title
+	title = f"List: {selected_list}"
+
+	# Extract description from list declaration, i.e. mod.list(..., desc=...))
+	if (desc := registry.decls.lists[selected_list].desc) is not None:
+		subtitle = desc
+	else:
+		subtitle = ""
+
+	ui_wrapper.title(title, subtitle)
+
+	# setup paging handling
+	page_size = settings.get("user.help_max_command_lines_per_page")
+	page_scroller.page_size = page_size
+	row_size = ui_wrapper.get_label_row_size()
+	maximum_height = compute_table_height(
+		row_size, ui_wrapper.get_item_spacing(), page_size
 	)
+
+	# get the list
+	talon_list = actions.user.talon_get_active_registry_list(selected_list)
+	rows = convert_key_value_pairs_to_rows(talon_list)
+
+	# show the rows in a table
+	if len(rows) > 0:
+		headers = ["Spoken Form", "Value"]
+		await ui_wrapper.draw_table(
+			headers,
+			rows,
+			maximum_height=maximum_height,
+			row_height=row_size,
+			id_salt="help_list",
+			scroller=page_scroller,
+			auto_size_columns=True
+		)
+
+	ui_wrapper.spacing()
+
+	# show navigation buttons. these are arranged horizontally but will wrap onto more rows if needed
+	async with ui.horizontal_wrapped():
+		if len(rows) > page_size:
+			if ui_wrapper.button(f"{scroller_name} next"):
+				page_scroller.page_down()
+
+			if ui_wrapper.button(f"{scroller_name} previous"):
+				page_scroller.page_up()
 	
 	
 
@@ -217,26 +268,26 @@ class CommandMenu:
 		ui.label("Closes the mouse grid")
 
 	async def mouse_click_ui(self, ui):
-		command_table = parse_markdown_table("""| Command      | Description                             |
+		command_table = parse_markdown_table("""| Command	  | Description							 |
 | ------------ | --------------------------------------- |
-| `touch`      | single click                            |
-| `duke`       | double click                            |
-| `trip click` | triple click                            |
-| `drag`       | hold down the left mouse button         |
+| `touch`	  | single click							|
+| `duke`	   | double click							|
+| `trip click` | triple click							|
+| `drag`	   | hold down the left mouse button		 |
 | `drag end`   | stop holding down the left mouse button |
-| `righty`     | right click                             |""")
+| `righty`	 | right click							 |""")
 		await draw_table(ui, command_table)
 
 	async def eye_tracking_ui(self, ui):
 		ui.label("See the wiki for instructions on how to set up an eye tracking device.")
 		ui.add_space(10)
 		ui.label("Use can use the following voice commands to control your eye tracking device.")
-		command_table = parse_markdown_table("""| Commands          | Description                          |
+		command_table = parse_markdown_table("""| Commands		  | Description						  |
 | ----------------- | ------------------------------------ |
-| `run calibration` | start Tobii calibration              |
+| `run calibration` | start Tobii calibration			  |
 | `control mouse`   | toggle on/off Tobii moving the mouse |
-| `zoom mouse`      | Toggle Control Mouse (Zoom).         |
-| `control off`     | Turn the eye tracker off             |""")
+| `zoom mouse`	  | Toggle Control Mouse (Zoom).		 |
+| `control off`	 | Turn the eye tracker off			 |""")
 		functions = {
 			"run calibration": actions.tracking.calibrate,
 			"control mouse": actions.tracking.control_toggle,
@@ -257,20 +308,20 @@ The speed at which you move your head has an exponential effect on the speed the
 """)
 
 	async def mouse_scrolling_ui(self, ui):
-		command_table = parse_markdown_table("""| Command        | Description                            |
+		command_table = parse_markdown_table("""| Command		| Description							|
 | -------------- | -------------------------------------- |
-| `page down`    | press the Page Down key                |
-| `page up`      | press the Page Up key                  |
-| `scroll down`  | scroll down                            |
-| `scroll up`    | scroll up                              |
-| `wheel down`   | scroll down with the mouse             |
-| `wheel up`     | scroll up with the mouse               |
-| `wheel left`   | scroll left with the mouse             |
-| `wheel right`  | scroll right with the mouse            |
+| `page down`	| press the Page Down key				|
+| `page up`	  | press the Page Up key				  |
+| `scroll down`  | scroll down							|
+| `scroll up`	| scroll up							  |
+| `wheel down`   | scroll down with the mouse			 |
+| `wheel up`	 | scroll up with the mouse			   |
+| `wheel left`   | scroll left with the mouse			 |
+| `wheel right`  | scroll right with the mouse			|
 | `wheel gaze`   | scroll according to the mouse position |
 | `wheel upper`  | continually scroll up with the mouse   |
 | `wheel downer` | continually scroll down with the mouse |
-| `wheel stop`   | stop scrolling                         |""")
+| `wheel stop`   | stop scrolling						 |""")
 		await draw_table(ui, command_table)
 
 	async def key_pressing_ui(self, ui):
@@ -281,21 +332,21 @@ The speed at which you move your head has an exponential effect on the speed the
 					font_id = egui.FontId(font_size, egui.FontFamily.Proportional)
 					style.override_font_id = font_id
 					async with ui.vertical() as vertical_ui:
-						await draw_list(vertical_ui, "user.modifier_key", "Modifier Keys")
+						await draw_list(vertical_ui, "user.modifier_key", "modifier", "Modifier Keys")
 						ui.add_space(5)
-						await draw_list(vertical_ui, "user.arrow_key", "Arrow Keys*")
+						await draw_list(vertical_ui, "user.arrow_key", "arrow", "Arrow Keys*")
 						ui.add_space(5)
-						await draw_list(vertical_ui, "user.number_key", "Number Keys*")
+						await draw_list(vertical_ui, "user.number_key", "number", "Number Keys*")
 					ui.separator()
 					async with ui.vertical() as vertical_ui:
-						await draw_list(vertical_ui, "user.special_key", "Special Keys")
-						await draw_list(vertical_ui, "user.function_key", "Function Keys")
+						await draw_list(vertical_ui, "user.special_key", "special", "Special Keys")
+						await draw_list(vertical_ui, "user.function_key", "function", "Function Keys")
 					ui.separator()
 					async with ui.vertical() as vertical_ui:
-						await draw_list(vertical_ui, "user.letter", "Letter Keys")
+						await draw_list(vertical_ui, "user.letter", "letter", "Letter Keys")
 					ui.separator()
 					async with ui.vertical() as vertical_ui:
-						await draw_list(vertical_ui, "user.symbol_key", "Symbol Keys")
+						await draw_list(vertical_ui, "user.symbol_key", "symbol", "Symbol Keys")
 					ui.separator()
 					async with ui.vertical():
 						ui.strong("How to Press Keys")
