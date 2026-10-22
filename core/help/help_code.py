@@ -68,6 +68,11 @@ async def gui_code(ui, ui_wrapper):
 		subtitle = "There is no active programming language"
 	ui_wrapper.title(title, subtitle)
 	if language:
+		ui.strong("Language specific commands make common tasks easier.")
+		if ui_wrapper.button("help language specific"):
+			pass
+		ui.separator()
+		ui_wrapper.spacing()
 		ui.strong("Snippets allow efficiently dictating formulaic code patterns and are used for things like control flow statements, class and function definitions, return statements and more.")
 		if ui_wrapper.button("help snip"):
 			pass
@@ -81,8 +86,9 @@ async def gui_code(ui, ui_wrapper):
 			ui_wrapper.spacing()
 		for tag in tags:
 			if is_tag_active(tag.name):
-				ui.strong(f"tag: {tag.name}")
-				ui.label(f"Description: {get_tag_description(tag.name)}")
+				async with ui.horizontal_wrapped():
+					ui.strong(f"{tag.name} tag: ")
+					ui.label(get_tag_description(tag.name))
 				if ui_wrapper.button(f"See Commands"):
 					pass
 				if tag.lists:
