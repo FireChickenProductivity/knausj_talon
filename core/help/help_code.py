@@ -57,11 +57,17 @@ async def gui_code(ui, ui_wrapper):
 		subtitle = "There is no active programming language"
 	ui_wrapper.title(title, subtitle)
 	if language:
+		ui.strong("Snippets allow efficiently dictating formulaic code patterns and are used for things like control flow statements, class and function definitions, return statements and more.")
 		if ui_wrapper.button("help snip"):
 			pass
+		ui.separator()
+		ui_wrapper.spacing()
 		if language_has_operators():
+			ui.strong("Operator commands support dictating things like variable assignment, mathematical operators, and comparison operators.")
 			if ui_wrapper.button("help operators"):
 				pass
+			ui.separator()
+			ui_wrapper.spacing()
 		for tag in tags:
 			if True:
 				ui.strong(f"tag: {tag.name}")
