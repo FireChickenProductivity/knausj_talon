@@ -47,6 +47,14 @@ def language_has_operators():
 	except NotImplementedError:
 		return False
 
+def get_tag_description(tag_name: str):
+	tag_declarations = registry.decls.tags
+	declaration = tag_declarations.get(tag_name)
+	if not declaration:
+		return "Description not found."
+	print(declaration.__dir__())
+	return declaration.desc
+
 @open_gui(refresh_period="500ms")
 async def gui_code(ui, ui_wrapper):
 	language = actions.code.language()
@@ -71,6 +79,7 @@ async def gui_code(ui, ui_wrapper):
 		for tag in tags:
 			if True:
 				ui.strong(f"tag: {tag.name}")
+				ui.label(f"Description: {get_tag_description(tag.name)}")
 				if ui_wrapper.button(f"See Commands"):
 					pass
 				if tag.lists:
