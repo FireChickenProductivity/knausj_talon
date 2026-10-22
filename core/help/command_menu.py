@@ -139,7 +139,12 @@ async def draw_list(ui, name, scroller_name, title, maximum_height=None):
 	else:
 		subtitle = ""
 
-	ui_wrapper.title(title, subtitle)
+	title_ridge_text = egui.RichText(title).size(ui_wrapper.get_text_size() * 1.5).strong()
+	ui.label(title_ridge_text)
+	if subtitle:
+		ui.strong(subtitle)
+	ui_wrapper.spacing()
+
 
 	# setup paging handling
 	page_size = settings.get("user.help_max_command_lines_per_page")
@@ -326,40 +331,35 @@ The speed at which you move your head has an exponential effect on the speed the
 
 	async def key_pressing_ui(self, ui):
 		async with ui.with_layout(egui.Layout.left_to_right(egui.Align.TOP)):
-			async with ui.scope() as scope:
-				async with scope.style_mut() as style:
-					font_size = 11
-					font_id = egui.FontId(font_size, egui.FontFamily.Proportional)
-					style.override_font_id = font_id
-					async with ui.vertical() as vertical_ui:
-						await draw_list(vertical_ui, "user.modifier_key", "modifier", "Modifier Keys")
-						ui.add_space(5)
-						await draw_list(vertical_ui, "user.arrow_key", "arrow", "Arrow Keys*")
-						ui.add_space(5)
-						await draw_list(vertical_ui, "user.number_key", "number", "Number Keys*")
-					ui.separator()
-					async with ui.vertical() as vertical_ui:
-						await draw_list(vertical_ui, "user.special_key", "special", "Special Keys")
-						await draw_list(vertical_ui, "user.function_key", "function", "Function Keys")
-					ui.separator()
-					async with ui.vertical() as vertical_ui:
-						await draw_list(vertical_ui, "user.letter", "letter", "Letter Keys")
-					ui.separator()
-					async with ui.vertical() as vertical_ui:
-						await draw_list(vertical_ui, "user.symbol_key", "symbol", "Symbol Keys")
-					ui.separator()
-					async with ui.vertical():
-						ui.strong("How to Press Keys")
-						ui.separator()
-						ui.strong("Command Mode")
-						ui.add_space(5)
-						ui.label("You press ordinary keys just by saying the spoken forms for the keys. You can do a keystroke by saying the name of a modifier key or multiple modifier keys followed by a key that is not a modifier. Keys in the lists denoted with a * and the modifier keys can only be used as part of a keystroke including a modifier or by saying \"press\" and then the name of the key.")
-						ui.strong("Dictation Mode")
-						ui.add_space(5)
-						ui.label("In dictation mode, you press keys by saying press and then either a key to press or a keystroke.")
-						ui.add_space(10)
-						self.draw_menu_button(ui)
-						self.draw_close_menu_button(ui)
+			async with ui.vertical() as vertical_ui:
+				await draw_list(vertical_ui, "user.modifier_key", "modifier", "Modifier Keys")
+				ui.add_space(5)
+				await draw_list(vertical_ui, "user.arrow_key", "arrow", "Arrow Keys*")
+				ui.add_space(5)
+				await draw_list(vertical_ui, "user.number_key", "number", "Number Keys*")
+			ui.separator()
+			async with ui.vertical() as vertical_ui:
+				await draw_list(vertical_ui, "user.special_key", "special", "Special Keys")
+				await draw_list(vertical_ui, "user.function_key", "function", "Function Keys")
+			ui.separator()
+			async with ui.vertical() as vertical_ui:
+				await draw_list(vertical_ui, "user.letter", "letter", "Letter Keys")
+			ui.separator()
+			async with ui.vertical() as vertical_ui:
+				await draw_list(vertical_ui, "user.symbol_key", "symbol", "Symbol Keys")
+			ui.separator()
+			async with ui.vertical():
+				ui.strong("How to Press Keys")
+				ui.separator()
+				ui.strong("Command Mode")
+				ui.add_space(5)
+				ui.label("You press ordinary keys just by saying the spoken forms for the keys. You can do a keystroke by saying the name of a modifier key or multiple modifier keys followed by a key that is not a modifier. Keys in the lists denoted with a * and the modifier keys can only be used as part of a keystroke including a modifier or by saying \"press\" and then the name of the key.")
+				ui.strong("Dictation Mode")
+				ui.add_space(5)
+				ui.label("In dictation mode, you press keys by saying press and then either a key to press or a keystroke.")
+				ui.add_space(10)
+				self.draw_menu_button(ui)
+				self.draw_close_menu_button(ui)
 
 
 	def show(self):
