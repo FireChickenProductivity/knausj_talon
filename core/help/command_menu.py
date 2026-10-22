@@ -120,7 +120,7 @@ page_scrollers = {}
 for scroller_name in ("arrow", "modifier", "number", "special", "function", "letter", "symbol"):
 	page_scrollers[scroller_name] = PageScroller()
 
-async def draw_list(ui, name, scroller_name, title, maximum_height=None):
+async def draw_list(ui, name, scroller_name, title):
 	ui_wrapper = UIWrapper(ui)
 	selected_list = name
 	page_scroller = page_scrollers[scroller_name]
@@ -139,8 +139,8 @@ async def draw_list(ui, name, scroller_name, title, maximum_height=None):
 	else:
 		subtitle = ""
 
-	title_ridge_text = egui.RichText(title).size(ui_wrapper.get_text_size() * 1.5).strong()
-	ui.label(title_ridge_text)
+	title_rich_text = egui.RichText(title).size(ui_wrapper.get_text_size() * 1.5).strong()
+	ui.label(title_rich_text)
 	if subtitle:
 		ui.strong(subtitle)
 	ui_wrapper.spacing()
@@ -364,23 +364,26 @@ The speed at which you move your head has an exponential effect on the speed the
 
 	def show(self):
 		# self.current_page = None
-		self.window.show()
+		actions.user.show_command_menu()
 
 	def hide(self):
-		self.window.hide()
+		actions.user.hide_command_menu()
 
 command_menu = CommandMenu()
+@open_gui(y=0, width=0.8, height=0.8, refresh_period="500ms")
+async def gui(ui, ui_wrapper):
+	await command_menu.ui(ui)
 
 mod = Module()
 @mod.action_class
 class Actions:
 	def show_command_menu():
 		"""Show a menu for seeing how to do basic things using Community"""
-		command_menu.show()
+		gui.show()
 
 	def hide_command_menu():
 		"""Hide the Community command menu"""
-		command_menu.hide()
+		gui.hide()
 
 	def screenshot_command_menu():
 		"""Screenshot the current page saving to the clipboard. Depends on Sam's community fork. Remove this before merge"""
