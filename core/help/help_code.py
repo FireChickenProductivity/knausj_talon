@@ -1,4 +1,4 @@
-from talon import actions, Module, Context, registry
+from talon import actions, Module, Context, registry, scope
 
 from dataclasses import dataclass
 
@@ -55,6 +55,9 @@ def get_tag_description(tag_name: str):
 	print(declaration.__dir__())
 	return declaration.desc
 
+def is_tag_active(tag_name: str):
+	return tag_name in scope.get("tag")
+
 @open_gui(refresh_period="500ms")
 async def gui_code(ui, ui_wrapper):
 	language = actions.code.language()
@@ -77,7 +80,7 @@ async def gui_code(ui, ui_wrapper):
 			ui.separator()
 			ui_wrapper.spacing()
 		for tag in tags:
-			if True:
+			if is_tag_active(tag.name):
 				ui.strong(f"tag: {tag.name}")
 				ui.label(f"Description: {get_tag_description(tag.name)}")
 				if ui_wrapper.button(f"See Commands"):
