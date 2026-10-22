@@ -186,13 +186,6 @@ async def draw_list(ui, name, scroller_name, title):
 
 class CommandMenu:
 	def __init__(self):
-		self.window = Window()
-		self.window.toplevel = True
-		self.window.draggable = True
-		self.window.decorated = False
-		self.current_page =  4
-		self.window.rect = skia.Rect(x=10, y=20, width=1000, height=1000)
-		self.window.set_content(self.ui)
 		self.pages = [
 			Page(self.move_the_mouse_ui, "Move the mouse (voice commands)"),
 			Page(self.eye_tracking_ui, "Move the mouse (eye tracking)"),
