@@ -19,7 +19,7 @@ class CodeTag:
 			self.file_name = name.partition(".")[-1]
 		self.lists = lists
 
-tags = [
+tags = sorted([
 	CodeTag("user.code_comment_line"),
 	CodeTag("user.code_keywords", lists=["user.code_keyword", "user.code_keyword_unprefixed"]),
 	CodeTag("user.code_functions", lists=["user.code_function_modifier"]),
@@ -31,7 +31,7 @@ tags = [
 	CodeTag("user.code_comment_documentation"),
 	CodeTag("user.code_data_bool"),
 	CodeTag("user.code_functions_common", lists=["user.code_common_function"]),
-]
+], key=lambda tag: tag.name)
 
 # detected_tags = []
 # for tag in registry.tags:
@@ -58,7 +58,7 @@ def get_tag_description(tag_name: str):
 def is_tag_active(tag_name: str):
 	return tag_name in scope.get("tag")
 
-@open_gui(refresh_period="500ms")
+@open_gui(refresh_period="500ms", y=0)
 async def gui_code(ui, ui_wrapper):
 	language = actions.code.language()
 	title = "Help Code"
