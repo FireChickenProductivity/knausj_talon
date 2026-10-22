@@ -21,7 +21,7 @@ class CodeTag:
 
 tags = [
 	CodeTag("user.code_comment_line"),
-	CodeTag("user.code_keywords", lists=["user.code_keyword"]),
+	CodeTag("user.code_keywords", lists=["user.code_keyword", "user.code_keyword_unprefixed"]),
 	CodeTag("user.code_functions", lists=["user.code_function_modifier"]),
 	CodeTag("user.code_comment_block"),
 	CodeTag("user.code_object_oriented", lists=["user.code_common_method"]),
@@ -39,28 +39,46 @@ tags = [
 # 		detected_tags.append(tag)
 # actions.insert(detected_tags)
 
+def language_has_operators():
+	try:
+		actions.user.code_get_operators()
+		return True
+	# This exception will get raised if there is no operators object defined in the active context
+	except NotImplementedError:
+		return False
+
 @open_gui(refresh_period="500ms")
 async def gui_code(ui, ui_wrapper):
+	language = actions.code.language()
 	title = "Help Code"
-	subtitle = f"Active Programming Language: {actions.code.language()}"
+	if language:
+		subtitle = f"Active Programming Language: {language}"
+	else:
+		subtitle = "There is no active programming language"
 	ui_wrapper.title(title, subtitle)
-
-	for tag in tags:
-		if True:
-			ui.strong(f"tag: {tag.name}")
-			if ui_wrapper.button(f"See Commands"):
+	if language:
+		if ui_wrapper.button("help snip"):
+			pass
+		if language_has_operators():
+			if ui_wrapper.button("help operators"):
 				pass
-			if tag.lists:
-				if len(tag.lists) > 1:
-					list_section_title = "Lists: "
-				else:
-					list_section_title = "List: "
-				async with ui.horizontal_wrapped():
-					ui.strong(list_section_title)
-					for l in tag.lists:
-						if ui_wrapper.button(l):
-							pass
-			ui.separator()
+		for tag in tags:
+			if True:
+				ui.strong(f"tag: {tag.name}")
+				if ui_wrapper.button(f"See Commands"):
+					pass
+				if tag.lists:
+					if len(tag.lists) > 1:
+						list_section_title = "Lists: "
+					else:
+						list_section_title = "List: "
+					async with ui.horizontal_wrapped():
+						ui.strong(list_section_title)
+						for l in tag.lists:
+							if ui_wrapper.button(l):
+								pass
+				ui.separator()
+				ui_wrapper.spacing()
 	if ui_wrapper.button("help close"):
 		gui_code.hide()
 
