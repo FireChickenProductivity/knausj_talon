@@ -129,9 +129,6 @@ async def draw_list(ui, ui_wrapper, name, scroller_name, title):
 	if not selected_list:
 		return
 
-	# show list name and description for the title
-	title = f"List: {selected_list}"
-
 	# Extract description from list declaration, i.e. mod.list(..., desc=...))
 	if (desc := registry.decls.lists[selected_list].desc) is not None:
 		subtitle = desc
@@ -326,34 +323,36 @@ The speed at which you move your head has an exponential effect on the speed the
 		await draw_table(ui, command_table)
 
 	async def key_pressing_ui(self, ui, ui_wrapper):
-		ui_wrapper.title("How to Press Keys")
-		ui.strong("Command Mode")
-		ui.add_space(5)
-		ui.label("You press ordinary keys just by saying the spoken forms for the keys. You can do a keystroke by saying the name of a modifier key or multiple modifier keys followed by a key that is not a modifier. Keys in the lists denoted with a * and the modifier keys can only be used as part of a keystroke including a modifier or by saying \"press\" and then the name of the key.")
-		ui.strong("Dictation Mode")
-		ui.add_space(5)
-		ui.label("In dictation mode, you press keys by saying press and then either a key to press or a keystroke.")
-		ui.separator()
-		# ui.add_space(10)
-		# self.draw_menu_button(ui)
-		# self.draw_close_menu_button(ui)
-		async with ui.with_layout(egui.Layout.left_to_right(egui.Align.TOP)):
-			async with ui.vertical() as vertical_ui:
-				await draw_list(vertical_ui, ui_wrapper, "user.modifier_key", "modifier", "Modifier Keys")
-				ui.add_space(5)
-				await draw_list(vertical_ui, ui_wrapper, "user.arrow_key", "arrow", "Arrow Keys*")
-				ui.add_space(5)
-				await draw_list(vertical_ui, ui_wrapper, "user.number_key", "number", "Number Keys*")
+		async with ui.with_layout(egui.Layout.top_down(egui.Align.Center)):
+			ui_wrapper.title("How to Press Keys")
+			ui.strong("Command Mode")
+			ui.add_space(5)
+			ui.label("You press ordinary keys just by saying the spoken forms for the keys. You can do a keystroke by saying the name of a modifier key or multiple modifier keys followed by a key that is not a modifier. Keys in the lists denoted with a * and the modifier keys can only be used as part of a keystroke including a modifier or by saying \"press\" and then the name of the key.")
+
+			ui.strong("Dictation Mode")
+			ui.add_space(5)
+			ui.label("In dictation mode, you press keys by saying press and then either a key to press or a keystroke.")
 			ui.separator()
-			async with ui.vertical() as vertical_ui:
-				await draw_list(vertical_ui, ui_wrapper, "user.special_key", "special", "Special Keys")
-				await draw_list(vertical_ui, ui_wrapper, "user.function_key", "function", "Function Keys")
-			ui.separator()
-			async with ui.vertical() as vertical_ui:
-				await draw_list(vertical_ui, ui_wrapper, "user.letter", "letter", "Letter Keys")
-			ui.separator()
-			async with ui.vertical() as vertical_ui:
-				await draw_list(vertical_ui, ui_wrapper, "user.symbol_key", "symbol", "Symbol Keys")
+			# ui.add_space(10)
+			# self.draw_menu_button(ui)
+			# self.draw_close_menu_button(ui)
+			async with ui.with_layout(egui.Layout.left_to_right(egui.Align.TOP)):
+				async with ui.vertical() as vertical_ui:
+					await draw_list(vertical_ui, ui_wrapper, "user.modifier_key", "modifier", "Modifier Keys")
+					ui.add_space(5)
+					await draw_list(vertical_ui, ui_wrapper, "user.arrow_key", "arrow", "Arrow Keys*")
+					ui.add_space(5)
+					await draw_list(vertical_ui, ui_wrapper, "user.number_key", "number", "Number Keys*")
+				ui.separator()
+				async with ui.vertical() as vertical_ui:
+					await draw_list(vertical_ui, ui_wrapper, "user.special_key", "special", "Special Keys")
+					await draw_list(vertical_ui, ui_wrapper, "user.function_key", "function", "Function Keys")
+				ui.separator()
+				async with ui.vertical() as vertical_ui:
+					await draw_list(vertical_ui, ui_wrapper, "user.letter", "letter", "Letter Keys")
+				ui.separator()
+				async with ui.vertical() as vertical_ui:
+					await draw_list(vertical_ui, ui_wrapper, "user.symbol_key", "symbol", "Symbol Keys")
 
 
 	def show(self):
@@ -364,7 +363,7 @@ The speed at which you move your head has an exponential effect on the speed the
 		actions.user.hide_command_menu()
 
 command_menu = CommandMenu()
-@open_gui(y=0, width=0.45, height=0.9, refresh_period="500ms")
+@open_gui(y=0, width=0.4, height=0.9, refresh_period="500ms")
 async def gui(ui, ui_wrapper):
 	await command_menu.ui(ui, ui_wrapper)
 
