@@ -159,7 +159,9 @@ async def draw_list(ui, ui_wrapper, name, scroller_name, title):
 
 	# show the rows in a table
 	if len(rows) > 0:
-		headers = ["Spoken Form                    ", "Value"]
+		max_first_column_length = max(max(len(row[0]) for row in rows) - len("Spoken Form"), 0)
+		headers = ["Spoken Form   " + " "*max_first_column_length, "Value"]
+		print(name, len(headers[0]))
 		await ui_wrapper.draw_table(
 			headers,
 			rows,
