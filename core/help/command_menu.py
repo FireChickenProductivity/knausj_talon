@@ -159,7 +159,7 @@ async def draw_list(ui, ui_wrapper, name, scroller_name, title):
 
 	# show the rows in a table
 	if len(rows) > 0:
-		headers = ["Spoken Form", "Value"]
+		headers = ["Spoken Form                    ", "Value"]
 		await ui_wrapper.draw_table(
 			headers,
 			rows,
@@ -168,7 +168,7 @@ async def draw_list(ui, ui_wrapper, name, scroller_name, title):
 			id_salt=title,
 			scroller=page_scroller,
 			# temporary measure
-			auto_size_columns=len(rows) < page_size
+			auto_size_columns=True
 		)
 
 	ui_wrapper.spacing()
